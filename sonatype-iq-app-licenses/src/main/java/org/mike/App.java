@@ -34,13 +34,6 @@ public class App
 
     String url = String.format("%s/api/v2/applications/%s/reports/%s", baseUrl, appId, reportId);
 
-    // String url =
-    // "http://search.maven.org/solrsearch/select?q=guice&rows=20&start=20&wt=json";
-    // String url =
-    // "http://search.maven.org/solrsearch/select?q=guice&rows=2&wt=xml";
-    // String url = "http://localhost:8182/";
-    // String url = "http://www.google.com/404";
-
     TryThreeJson myapp = new TryThreeJson();
     JSONObject rep = myapp.get(url);
 
@@ -61,9 +54,19 @@ public class App
       {
         JSONObject licenseData = component.getJSONObject("licenseData");
 
-        addLicenseNameToSet(declaredLicenseSet, licenseData, "declaredLicenses");
-        addLicenseNameToSet(observedLicenseSet, licenseData, "observedLicenses");
-        addLicenseNameToSet(overriddenLicenseSet, licenseData, "overriddenLicenses");
+        //if overridden licenses (a.k.a. Effective licenses)
+        //add those and skip declared and observed
+        
+        if (licenseData.has("overriddenLicenses")
+            && licenseData.getJSONArray("overriddenLicenses").length() > 0)
+        {
+          addLicenseNameToSet(overriddenLicenseSet, licenseData, "overriddenLicenses");
+        }
+        else
+        {
+          addLicenseNameToSet(declaredLicenseSet, licenseData, "declaredLicenses");
+          addLicenseNameToSet(observedLicenseSet, licenseData, "observedLicenses");
+        }
       }
     }
 
