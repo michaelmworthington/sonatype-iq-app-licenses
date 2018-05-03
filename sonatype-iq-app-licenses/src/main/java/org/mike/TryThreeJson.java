@@ -21,9 +21,9 @@ public class TryThreeJson
    * @return TODO
    * @throws Exception
    */
-  public JSONObject get(String pUrl) throws Exception
+  public <T> T get(String pUrl, Class<T> pReturnClassType) throws Exception
   {
-    JSONObject returnValue = null;
+    T returnValue = null;
 
     Client client = new Client(new Context(), Protocol.HTTP);
     ClientResource res = new ClientResource(pUrl);
@@ -32,12 +32,12 @@ public class TryThreeJson
 
     try
     {
-      returnValue = res.get(JSONObject.class);
+      returnValue = res.get(pReturnClassType);
 
       int code = res.getStatus().getCode();
       String description = res.getStatus().getDescription();
       LOGGER.info("GET {}: Response {}-{}", pUrl, code, description);
-      LOGGER.debug("Payload:\n{}", returnValue.toString(2));
+      LOGGER.debug("Payload:\n{}", returnValue.toString());
 
     }
     catch (ResourceException ex)
