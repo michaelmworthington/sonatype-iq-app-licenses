@@ -14,6 +14,11 @@ echo "M2_HOME = ${M2_HOME}"
 mvn clean package'''
       }
     }
+    stage('Policy Evaluation') {
+      steps {
+        nexusPolicyEvaluation(iqStage: 'build', iqApplication: 'sonatype-iq-app-licenses')
+      }
+    }
   }
   tools {
     maven 'Maven 3.3.9 - Auto Install'
