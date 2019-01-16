@@ -27,7 +27,7 @@ public class TryThreeJson
 
     Client client = new Client(new Context(), Protocol.HTTP);
     ClientResource res = new ClientResource(pUrl);
-    res.setChallengeResponse(ChallengeScheme.HTTP_BASIC, "admin", "admin123");
+    res.setChallengeResponse(ChallengeScheme.HTTP_BASIC, App.USERNAME, App.PASSWORD);
     res.setNext(client);
 
     try

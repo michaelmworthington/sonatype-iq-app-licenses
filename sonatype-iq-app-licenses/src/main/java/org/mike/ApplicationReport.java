@@ -61,6 +61,8 @@ class ApplicationReport
         //if overridden licenses (a.k.a. Effective licenses)
         //add those and skip declared and observed
 
+
+        //TODO: Add a counter so that we know how many components are using each license
         if (licenseData.has("overriddenLicenses")
                 && licenseData.getJSONArray("overriddenLicenses").length() > 0)
         {

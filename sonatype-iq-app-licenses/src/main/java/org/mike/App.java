@@ -19,9 +19,33 @@ public class App
 
   static final String APP_REPORT_REST_V2 = "%s/api/v2/applications/%s/reports/%s";
   static final String ALL_REPORTS_REST_V2 = "%s/api/v2/reports/applications";
+
+  //Change these to match your IQ Server
   static final String BASE_URL = "http://localhost:8060/iq";
+  static final String USERNAME = "admin";
+  static final String PASSWORD = "admin123";
 
 
+  /**
+   * Demo class to pull license data from IQ Server and aggregate based on the licenses
+   *
+   * The reports and UI in IQ Server are structured as:
+   *     Application - to - Component - to - License
+   *
+   * The question I try to answer with this sample code "is which licenses are the most popular?"
+   *
+   * This requires inverting the data model to something like:
+   *     License - to - Application
+   *
+   * TODO: enhancements:
+   *       The code as written will simply report on all unique licenses. This could be enhanced to
+   *       maintain a counter for each occurrence of a license so that you know if a license
+   *       is used across a lot of components across a lot of applications or just used hidden in the corner
+   *
+   *
+   * @param args
+   * @throws Exception
+   */
   public static void main(String[] args) throws Exception
   {
     SLF4JBridgeHandler.install();
@@ -34,6 +58,8 @@ public class App
     Set<String> jsonLicenseSet = new HashSet<String>();
     for (ApplicationReport appReport : reports.getApplicationReports())
     {
+      //TODO: Change the logic to loop through all the reports and collect the desired information
+
       //LOGGER.info("Does application {} at {} contain JSON: {}", appReport.appName, appReport.stage, appReport.doesContainLicense("JSON"));
       if(appReport.doesContainLicense("JSON"))
       {
