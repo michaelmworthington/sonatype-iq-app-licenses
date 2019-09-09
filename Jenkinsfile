@@ -9,12 +9,16 @@ pipeline {
   stages {
     stage('Prep') {
       steps {
-        sh 'echo "PATH = ${PATH}"'
-        sh 'echo "M2_HOME = ${M2_HOME}"'
-        sh 'pwd'
-        sh 'ls -la'
-        sh 'id'
-        //sh 'cat $HOME/.m2/settings.xml'
+        configFileProvider([configFile(fileId: 'c53477b4-afad-4fe1-89e7-b1c28e899e4e', variable: 'MAVEN_SETTINGS')]) {
+          sh 'echo "PATH = ${PATH}"'
+          sh 'echo "M2_HOME = ${M2_HOME}"'
+          sh 'pwd'
+          sh 'ls -la'
+          sh 'id'
+          //sh 'cat $HOME/.m2/settings.xml'
+          sh 'mvn -B -s $MAVEN_SETTINGS help:effective-settings'
+          sh 'mvn -B -s $MAVEN_SETTINGS help:effective-pom'
+        }
       }
     }
     stage('Build') {
@@ -24,7 +28,7 @@ pipeline {
         }
       }
     }
-    stage('Test'){
+    stage('Test') {
       steps {
         configFileProvider([configFile(fileId: 'c53477b4-afad-4fe1-89e7-b1c28e899e4e', variable: 'MAVEN_SETTINGS')]) {
           sh 'mvn -B -s $MAVEN_SETTINGS test'
