@@ -13,16 +13,22 @@ pipeline {
         sh 'echo "M2_HOME = ${M2_HOME}"'
         sh 'pwd'
         sh 'ls -la'
+        sh 'id'
+        sh 'cat ~/.m2/settings.xml'
       }
     }
     stage('Build') {
       steps {
-        sh 'mvn clean install'
+        configFileProvider([configFile(fileId: 'c53477b4-afad-4fe1-89e7-b1c28e899e4e', variable: 'MAVEN_SETTINGS')]) {
+          sh 'mvn -B -s $MAVEN_SETTINGS clean install'
+        }
       }
     }
     stage('Test'){
       steps {
-        sh 'mvn test'
+        configFileProvider([configFile(fileId: 'c53477b4-afad-4fe1-89e7-b1c28e899e4e', variable: 'MAVEN_SETTINGS')]) {
+          sh 'mvn -B -s $MAVEN_SETTINGS test'
+        }
       }
       post {
         always {
