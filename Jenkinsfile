@@ -1,23 +1,40 @@
-//tools {
-//  maven 'Maven 3.3.9 - Auto Install'
-//  jdk 'JDK 8u66 - Auto Install'
-//}
+pipeline {
+  agent {
+    docker {
+      image 'maven:3-alpine'
+      args '-v /root/.m2:/root/.m2'
+    }
 
-timestamps {
-  node() {
-    stage('Initialize') {
-        sh '''echo "PATH = ${PATH}"
-echo "M2_HOME = ${M2_HOME}"
-           '''
+  }
+  stages {
+    stage('Prep') {
+      steps {
+        sh 'echo "PATH = ${PATH}"'
+        sh 'echo "M2_HOME = ${M2_HOME}"'
+        sh 'pwd'
+        sh 'ls -la'
+      }
     }
     stage('Build') {
-        sh '''cd sonatype-iq-app-licenses
-mvn clean install'''
+      steps {
+        sh 'mvn clean install'
+      }
+    }
+    stage('Test'){
+      steps {
+        sh 'mvn test'
+      }
+      post {
+        always {
+          junit 'target/surefire-reports/*.xml'
+        }
+      }
     }
     stage('Policy Evaluation') {
+      steps {
         nexusPolicyEvaluation iqStage: 'build',
                               iqApplication: selectedApplication('sonatype-iq-app-licenses')
-
+      }
     }
   }
 }
