@@ -17,7 +17,7 @@ public class TryThreeJson
   static final String ALL_REPORTS_REST_V2 = "%s/api/v2/reports/applications";
 
   //Change these to match your IQ Server
-  static final String BASE_URL = "http://localhost:8060/iq";
+  static final String BASE_URL = "http://192.168.1.157:8060/iq";
   static final String USERNAME = "admin";
   static final String PASSWORD = "admin123";
 
