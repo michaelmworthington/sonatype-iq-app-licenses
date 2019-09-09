@@ -1,7 +1,7 @@
-tools {
-  maven 'Maven 3.3.9 - Auto Install'
-  jdk 'JDK 8u66 - Auto Install'
-}
+//tools {
+//  maven 'Maven 3.3.9 - Auto Install'
+//  jdk 'JDK 8u66 - Auto Install'
+//}
 
 timestamps {
   node() {
