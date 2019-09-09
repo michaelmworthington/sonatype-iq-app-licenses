@@ -14,7 +14,7 @@ pipeline {
         sh 'pwd'
         sh 'ls -la'
         sh 'id'
-        sh 'cat ~/.m2/settings.xml'
+        sh 'cat $HOME/.m2/settings.xml'
       }
     }
     stage('Build') {
