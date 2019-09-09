@@ -36,7 +36,7 @@ class ApplicationReport
 
   ApplicationReport invoke() throws Exception
   {
-    String url = String.format(App.APP_REPORT_REST_V2, App.BASE_URL, appName, reportId);
+    String url = String.format(TryThreeJson.APP_REPORT_REST_V2, TryThreeJson.BASE_URL, appName, reportId);
 
     TryThreeJson myapp = new TryThreeJson();
     JSONObject rep = myapp.get(url, JSONObject.class);

@@ -1,12 +1,9 @@
 package org.mike;
 
-import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.slf4j.LoggerFactory;
-
-import static org.mike.App.BASE_URL;
 
 /**
  * Unit test for simple App.
@@ -37,7 +34,7 @@ public class AppTest
     public void testAppReport() throws Exception
     {
       String appId = "webgoat";
-      String reportId = "fb5f734f02be4de68b3828d4fbde0617";
+      String reportId = "f525fd12979646c9a02d96da542e2666";
 
       ApplicationReport appHelper2 = new ApplicationReport(appId, reportId).invoke();
       appHelper2.printLicenseInfo();

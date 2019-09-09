@@ -17,15 +17,6 @@ public class App
 {
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(App.class);
 
-  static final String APP_REPORT_REST_V2 = "%s/api/v2/applications/%s/reports/%s";
-  static final String ALL_REPORTS_REST_V2 = "%s/api/v2/reports/applications";
-
-  //Change these to match your IQ Server
-  static final String BASE_URL = "http://localhost:8060/iq";
-  static final String USERNAME = "admin";
-  static final String PASSWORD = "admin123";
-
-
   /**
    * Demo class to pull license data from IQ Server and aggregate based on the licenses
    *

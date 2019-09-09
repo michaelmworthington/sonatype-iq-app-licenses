@@ -22,7 +22,7 @@ class Reports
 
   Reports invoke() throws Exception
   {
-    String url = String.format(App.ALL_REPORTS_REST_V2, App.BASE_URL);
+    String url = String.format(TryThreeJson.ALL_REPORTS_REST_V2, TryThreeJson.BASE_URL);
     reportSet = new ArrayList<Report>();
 
     TryThreeJson myapp = new TryThreeJson();

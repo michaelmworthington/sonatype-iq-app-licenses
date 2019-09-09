@@ -11,12 +11,25 @@ echo "M2_HOME = ${M2_HOME}"
     stage('Build') {
       steps {
         sh '''cd sonatype-iq-app-licenses
-mvn clean package'''
+mvn clean install'''
       }
     }
     stage('Policy Evaluation') {
       steps {
-        nexusPolicyEvaluation(iqStage: 'build', iqApplication: 'sonatype-iq-app-licenses')
+        def result = nexusPolicyEvaluation(iqStage: 'build', iqApplication: 'sonatype-iq-app-licenses')
+
+        nexusPolicyResultNotifier
+          bitbucketNotification:
+            nexusBitbucketNotification(sendBitbucketNotification: false,
+              commitHash: commitHash,
+              projectKey: 'NND',
+              repositorySlug: 'sample-application')
+          jiraNotification:
+            nexusJiraNotification(sendJiraNotification: false,
+              projectKey: 'DP')
+
+        //nexusPolicyResultNotifier bitbucketNotification: nexusBitbucketNotification(commitHash: 'hash', jobCredentialsId: '', projectKey: 'DP', repositorySlug: 'abc', sendBitbucketNotification: true)
+
       }
     }
   }
