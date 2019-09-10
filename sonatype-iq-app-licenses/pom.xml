@@ -26,6 +26,52 @@
 
   <build>
     <plugins>
+      <!-- for CLM -->
+
+      <!-- do the scan in the maven build context -->
+      <plugin>
+        <groupId>com.sonatype.clm</groupId>
+        <artifactId>clm-maven-plugin</artifactId>
+        <version>${clm-maven-plugin-version}</version>
+        <executions>
+          <execution>
+            <phase>verify</phase>
+            <goals>
+              <goal>evaluate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- so the dependencies show up in Jenkins -->
+      <plugin>
+        <groupId>com.sonatype.clm</groupId>
+        <artifactId>clm-maven-plugin</artifactId>
+        <version>${clm-maven-plugin-version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>index</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- so the dependencies get passed to Nexus Repo Staging -->
+      <plugin>
+        <groupId>com.sonatype.clm</groupId>
+        <artifactId>clm-maven-plugin</artifactId>
+        <version>${clm-maven-plugin-version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>attach</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>

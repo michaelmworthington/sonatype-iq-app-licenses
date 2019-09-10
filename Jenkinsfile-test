@@ -1,0 +1,57 @@
+def MAVEN_PROFILE = ""
+
+pipeline {
+  agent any
+//  agent {
+//    docker {
+//      image 'maven:3-alpine'
+//      args '-v /Users/mworthington/.m2:/root/.m2'
+//    }
+//  }
+
+  tools {
+    maven 'Maven 3.5.3 - Local Install'
+  }
+
+  options {
+    timestamps()
+  }
+
+  parameters {
+    string (name: 'Greeting', defaultValue: 'Hello', description: 'How should I greet the world?')
+  }
+
+//  environment {
+//  }
+
+  stages {
+    stage('Prep') {
+      steps {
+        configFileProvider([configFile(fileId: 'c53477b4-afad-4fe1-89e7-b1c28e899e4e', variable: 'MAVEN_SETTINGS')]) {
+
+          echo "${params.Greeting} World!"
+
+          script {
+            echo "Setting maven profile"
+            MAVEN_PROFILE="-P staging-release"
+          }
+
+
+        }
+      }
+    }
+    stage('Greeting') {
+      when {
+        equals expected: "Hello", actual: params.Greeting
+      }
+      steps {
+        echo "An Extra Special Greeting!!!!"
+
+        echo "MAVEN_PROFILE: ${MAVEN_PROFILE}"
+        withEnv(["MAVEN_PROFILE=${MAVEN_PROFILE}"]) {
+          sh 'echo "MAVEN_PROFILE = ${MAVEN_PROFILE}"'
+        }
+      }
+    }
+  }
+}
