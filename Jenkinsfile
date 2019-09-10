@@ -72,7 +72,7 @@ pipeline {
                             '"gitCommit" : "' + "${GIT_COMMIT}" + '",' +
                             '"gitBranch" : "' + "${GIT_BRANCH}" + '",' +
                             '"gitLink" : "' + "${GIT_URL}" + '",' +
-                            '"gitCommitter" : "' + "${GIT_COMMITTER_NAME}" + '",' +
+//                            '"gitCommitter" : "' + "${GIT_COMMITTER_NAME}" + '",' +
                             '"gitAuthor" : "' + "${GIT_AUTHOR_NAME}" + '",' +
                             '"jenkinsJob": "' + "${BUILD_URL}" +'"}'
 
