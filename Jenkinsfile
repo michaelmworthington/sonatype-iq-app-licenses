@@ -65,10 +65,10 @@ pipeline {
                             '"origPomVersion" : "' + "${POM_VERSION}" + '",' +
                             '"releasePomVersion" : "' + "${POM_RELEASE_VERSION}" + '",' +
                             '"branch" : "' + "${BRANCH_NAME}" + '",' +
-                            '"changeId" : "' + "${CHANGE_ID}" + '",' +
-                            '"changeLink" : "' + "${CHANGE_URL}" + '",' +
-                            '"changeTitle" : "' + "${CHANGE_TITLE}" + '",' +
-                            '"changeAuthor" : "' + "${CHANGE_AUTHOR}" + '",' +
+//                            '"changeId" : "' + "${CHANGE_ID}" + '",' +
+//                            '"changeLink" : "' + "${CHANGE_URL}" + '",' +
+//                            '"changeTitle" : "' + "${CHANGE_TITLE}" + '",' +
+//                            '"changeAuthor" : "' + "${CHANGE_AUTHOR}" + '",' +
                             '"gitCommit" : "' + "${GIT_COMMIT}" + '",' +
                             '"gitBranch" : "' + "${GIT_BRANCH}" + '",' +
                             '"gitLink" : "' + "${GIT_URL}" + '",' +
@@ -172,12 +172,14 @@ pipeline {
         //input 'Move Image out of Beta?'
 
         // TODO: the jenkins plugin doesn't have a source repo, so this conflicts with both maven and docker tagged with the same thing
+        //https://help.sonatype.com/integrations/nexus-and-continuous-integration/nexus-platform-plugin-for-jenkins#NexusPlatformPluginforJenkins-Move(Promote)Components
         // moveComponents destination: 'docker-hosted', nexusInstanceId: 'nexus3-demo', tagName: "${NXRM_TAG_NAME}"
 
         configFileProvider([configFile(fileId: 'c53477b4-afad-4fe1-89e7-b1c28e899e4e', variable: 'MAVEN_SETTINGS')]) {
 
           withEnv(["MAVEN_PROFILE=${MAVEN_PROFILE}"]) {
 
+            //https://help.sonatype.com/integrations/nexus-and-continuous-integration/repository-manager-for-maven-plugin#RepositoryManagerforMavenPlugin-nxrm3:staging-move
             sh 'mvn -B -s $MAVEN_SETTINGS ${MAVEN_PROFILE} nxrm3:staging-move -Dtag=${NXRM_TAG_NAME} -DsourceRepository=docker-hosted-beta -DdestinationRepository=docker-hosted-qa'
 
             sh 'mvn -B -s $MAVEN_SETTINGS ${MAVEN_PROFILE} nxrm3:staging-move -Dtag=${NXRM_TAG_NAME} -DsourceRepository=maven-releases-staging -DdestinationRepository=maven-releases-qa'
@@ -186,5 +188,6 @@ pipeline {
         }
       }
     }
+    //todo: delete scenarios
   }
 }
