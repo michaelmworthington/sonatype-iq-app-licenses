@@ -108,6 +108,7 @@ pipeline {
         }
         stage('IQ OSS Policy Evaluation') {
           steps {
+            //TODO: the plugin is broken
             nexusPolicyEvaluation iqStage: 'build',
                                   iqApplication: 'sonatype-iq-app-licenses'
           }
