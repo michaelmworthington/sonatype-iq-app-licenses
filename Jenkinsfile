@@ -248,7 +248,7 @@ pipeline {
         equals expected: true, actual: params.IS_RELEASE
       }
       steps {
-        //input 'Move Image out of Beta?'
+        input 'Move Image into QA?'
 
         // TODO: the jenkins plugin doesn't have a source repo, so this conflicts with both maven and docker tagged with the same thing
         //https://help.sonatype.com/integrations/nexus-and-continuous-integration/nexus-platform-plugin-for-jenkins#NexusPlatformPluginforJenkins-Move(Promote)Components
