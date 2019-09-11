@@ -268,6 +268,9 @@ pipeline {
       }
     }
     stage('Log Tag Attributes') {
+      when {
+        equals expected: true, actual: params.IS_RELEASE
+      }
       steps {
 //        print "NPE: ${npe.getApplicationCompositionReportUrl()}"
 //        print "NPE.affected = ${npe.affectedComponentCount}"
@@ -329,8 +332,11 @@ pipeline {
     }
     stage('Cleanup Tag') {
       when {
-        //branch 'develop'
-        equals expected: true, actual: params.BE_NICE_AND_CLEAN_UP
+        allOf {
+          //branch 'develop'
+          equals expected: true, actual: params.BE_NICE_AND_CLEAN_UP
+          equals expected: true, actual: params.IS_RELEASE
+        }
       }
       steps {
         // TODO: the jenkins and maven plugins only deletes all the components associated with the tag
