@@ -22,7 +22,7 @@ pipeline {
 
   parameters {
     booleanParam (name: 'IS_RELEASE', defaultValue: true, description: 'Is this a release build (true/false)?')
-    booleanParam (name: 'SHOULD_CLEANUP', defaultValue: false, description: 'Cleanup the transient jars that are now in the docker image?')
+    booleanParam (name: 'BE_NICE_AND_CLEAN_UP', defaultValue: false, description: 'Cleanup the transient jars that are now in the docker image?')
     booleanParam (name: 'MANUAL_TEST_FAIL', defaultValue: false, description: 'Did manual testing succeed?')
   }
 
