@@ -29,7 +29,7 @@ pipeline {
   environment {
     POM_VERSION = readMavenPom().getVersion()
     POM_RELEASE_VERSION = POM_VERSION.minus("-SNAPSHOT")
-    NXRM_TAG_NAME="RBCDemoJenkinsfile-${BUILD_NUMBER}"
+    NXRM_TAG_NAME="sonatype-iq-app-licenses.staging-demo.${BUILD_NUMBER}"
   }
 
   stages {
@@ -64,6 +64,9 @@ pipeline {
 
           try
           {
+            //http://localhost:8052/env-vars.html/
+            echo "JOB_BASE_NAME: ${JOB_BASE_NAME}"
+
             echo "BRANCH_NAME: ${BRANCH_NAME}"
             echo "GIT_COMMIT: ${GIT_COMMIT}"
             echo "GIT_BRANCH: ${GIT_BRANCH}"
@@ -71,7 +74,7 @@ pipeline {
           }
           catch (Exception e)
           {
-            BRANCH_NAME = "N/A"
+            BRANCH_NAME = "local-branch"
             GIT_COMMIT = "N/A"
             GIT_BRANCH = "N/A"
             GIT_URL = "N/A"
