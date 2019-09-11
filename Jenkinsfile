@@ -327,7 +327,7 @@ pipeline {
     stage('Cleanup Tag') {
       when {
         //branch 'develop'
-        equals expected: true, actual: params.SHOULD_CLEANUP
+        equals expected: true, actual: params.BE_NICE_AND_CLEAN_UP
       }
       steps {
         // TODO: the jenkins and maven plugins only deletes all the components associated with the tag
