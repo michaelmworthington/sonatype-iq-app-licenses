@@ -17,10 +17,10 @@ pipeline {
     timestamps()
   }
 
-  parameters {
-    string (name: 'Greeting', defaultValue: 'Hello', description: 'How should I greet the world?')
-  }
-
+//  parameters {
+//    string (name: 'Greeting', defaultValue: 'Hello', description: 'How should I greet the world?')
+//  }
+//
 //  environment {
 //  }
 
@@ -29,29 +29,67 @@ pipeline {
       steps {
         configFileProvider([configFile(fileId: 'c53477b4-afad-4fe1-89e7-b1c28e899e4e', variable: 'MAVEN_SETTINGS')]) {
 
-          echo "${params.Greeting} World!"
-
           script {
             echo "Setting maven profile"
             MAVEN_PROFILE="-P staging-release"
           }
 
 
-        }
-      }
-    }
-    stage('Greeting') {
-      when {
-        equals expected: "Hello", actual: params.Greeting
-      }
-      steps {
-        echo "An Extra Special Greeting!!!!"
+//          curl -X PUT \
+//  http://localhost:8083/nexus/service/rest/v1/tags/CNB \
+//  -H 'Content-Type: application/json' \
+//  -d '{
+//          "attributes": {
+//            "docker": "build",
+//            "additionalProp2": {
+//              "whydoesthistagexist": "because i want to test staging with snapshots",
+//              "who'\''s on first": "what'\''s on second"
+//            },
+//            "additionalProp3": {}
+//          }
+//        }'
 
-        echo "MAVEN_PROFILE: ${MAVEN_PROFILE}"
-        withEnv(["MAVEN_PROFILE=${MAVEN_PROFILE}"]) {
-          sh 'echo "MAVEN_PROFILE = ${MAVEN_PROFILE}"'
+
+          //curl -X PUT "http://localhost:8083/nexus/service/rest/v1/tags/RBCDemoJenkinsfile-51" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"attributes\": { \"additionalProp1\": \"a\", \"additionalProp2\": \"b\", \"additionalProp3\": \"c\"}"
+
+          //                      requestBody: '''{
+//"attributes": {
+//    "333333": "IQIQIQIQIQIQIQIQIQIQI",
+//    "jenkinsJob": ${BUILD_URL}
+//  }
+//}''',
+
+
+
+          httpRequest acceptType: 'APPLICATION_JSON',
+                      authentication: 'nexus-iq-demo',
+                      consoleLogResponseBody: true,
+                      contentType: 'APPLICATION_JSON',
+                      httpMode: 'PUT',
+                      requestBody: '{ "attributes": {' +
+                              '"user" : "' + "mike" + '",' +
+                              '"jenkinsJob": "' + "${BUILD_URL}" + '"' +
+                              '} }',
+                      responseHandle: 'NONE',
+                      url: 'http://localhost:61446/nexus/service/rest/v1/tags/RBCDemoJenkinsfile-51',
+                      validResponseCodes: '200'
+
+
         }
       }
     }
+//    stage('Greeting') {
+//      when {
+//        equals expected: "Hello", actual: params.Greeting
+//      }
+//      steps {
+//        echo "An Extra Special Greeting!!!!"
+//
+//        echo "MAVEN_PROFILE: ${MAVEN_PROFILE}"
+//        withEnv(["MAVEN_PROFILE=${MAVEN_PROFILE}"]) {
+//          sh 'echo "MAVEN_PROFILE = ${MAVEN_PROFILE}"'
+//        }
+//      }
+//    }
   }
 }

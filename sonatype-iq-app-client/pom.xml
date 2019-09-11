@@ -57,6 +57,13 @@
       <artifactId>jul-to-slf4j</artifactId>
       <version>1.7.9</version>
     </dependency>
+    <dependency>
+      <groupId>com.sonatype.nexus</groupId>
+      <artifactId>nexus-platform-api</artifactId>
+      <version>3.8.20190821-172053.8894a6d</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
 

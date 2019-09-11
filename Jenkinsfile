@@ -1,4 +1,6 @@
 def MAVEN_PROFILE = ""
+//com.sonatype.nexus.api.iq.ApplicationPolicyEvaluation
+def npe
 
 pipeline {
   agent any
@@ -18,7 +20,9 @@ pipeline {
   }
 
   parameters {
-    booleanParam (name: 'IS_RELEASE', defaultValue: false, description: 'Is this a release build (true/false)?')
+    booleanParam (name: 'IS_RELEASE', defaultValue: true, description: 'Is this a release build (true/false)?')
+    booleanParam (name: 'SHOULD_CLEANUP', defaultValue: false, description: 'Cleanup the transient jars that are now in the docker image?')
+    booleanParam (name: 'MANUAL_TEST_FAIL', defaultValue: false, description: 'Did manual testing succeed?')
   }
 
   environment {
@@ -54,6 +58,25 @@ pipeline {
         equals expected: true, actual: params.IS_RELEASE
       }
       steps {
+        script {
+          MAVEN_PROFILE="-P staging-release"
+
+          try
+          {
+            echo "BRANCH_NAME: ${BRANCH_NAME}"
+            echo "GIT_COMMIT: ${GIT_COMMIT}"
+            echo "GIT_BRANCH: ${GIT_BRANCH}"
+            echo "GIT_URL: ${GIT_URL}"
+          }
+          catch (Exception e)
+          {
+            BRANCH_NAME = "N/A"
+            GIT_COMMIT = "N/A"
+            GIT_BRANCH = "N/A"
+            GIT_URL = "N/A"
+          }
+        }
+
         configFileProvider([configFile(fileId: 'c53477b4-afad-4fe1-89e7-b1c28e899e4e', variable: 'MAVEN_SETTINGS')]) {
 
           sh 'mvn -B -s $MAVEN_SETTINGS versions:set -DnewVersion=${POM_RELEASE_VERSION}-${BUILD_NUMBER}'
@@ -75,10 +98,6 @@ pipeline {
 //                            '"gitCommitter" : "' + "${GIT_COMMITTER_NAME}" + '",' +
 //                            '"gitAuthor" : "' + "${GIT_AUTHOR_NAME}" + '",' +
                             '"jenkinsJob": "' + "${BUILD_URL}" +'"}'
-
-          script {
-            MAVEN_PROFILE="-P staging-release"
-          }
         }
       }
     }
@@ -108,14 +127,69 @@ pipeline {
         }
         stage('IQ OSS Policy Evaluation') {
           steps {
-            //TODO: the plugin is broken
-            nexusPolicyEvaluation iqStage: 'build',
-                                  iqApplication: 'sonatype-iq-app-licenses'
+            //TODO: the jenkins plugin is not picking up the git hash
+            script {
+
+              npe = nexusPolicyEvaluation iqStage: 'build',
+                                              iqApplication: 'sonatype-iq-app-licenses'
+            }
           }
         }
         stage('Static Analysis') {
           steps {
             echo '...run SonarQube or other SAST tools here'
+          }
+        }
+        stage('Manual Testing') {
+          when {
+            //branch 'develop'
+            equals expected: true, actual: params.MANUAL_TEST_FAIL
+          }
+          steps {
+            print "MANUAL TESTING FAILED"
+
+            configFileProvider([configFile(fileId: 'c53477b4-afad-4fe1-89e7-b1c28e899e4e', variable: 'MAVEN_SETTINGS')]) {
+
+              withEnv(["MAVEN_PROFILE=${MAVEN_PROFILE}"]) {
+
+                sh 'mvn -B -s $MAVEN_SETTINGS ${MAVEN_PROFILE} nxrm3:staging-delete -Dtag=${NXRM_TAG_NAME}'
+
+                httpRequest acceptType: 'APPLICATION_JSON',
+                            authentication: 'nexus-iq-demo',
+                            consoleLogResponseBody: true,
+                            contentType: 'APPLICATION_JSON',
+                            httpMode: 'PUT',
+                            responseHandle: 'NONE',
+                            url: "http://localhost:8083/nexus/service/rest/v1/tags/${NXRM_TAG_NAME}",
+                            validResponseCodes: '200',
+                            requestBody: '{ "attributes": {' +
+                                    '"user" : "' + "${USER}" + '",' +
+                                    '"origPomVersion" : "' + "${POM_VERSION}" + '",' +
+                                    '"releasePomVersion" : "' + "${POM_RELEASE_VERSION}" + '",' +
+                                    '"branch" : "' + "${BRANCH_NAME}" + '",' +
+//                            '"changeId" : "' + "${CHANGE_ID}" + '",' +
+//                            '"changeLink" : "' + "${CHANGE_URL}" + '",' +
+//                            '"changeTitle" : "' + "${CHANGE_TITLE}" + '",' +
+//                            '"changeAuthor" : "' + "${CHANGE_AUTHOR}" + '",' +
+                                    '"gitCommit" : "' + "${GIT_COMMIT}" + '",' +
+                                    '"gitBranch" : "' + "${GIT_BRANCH}" + '",' +
+                                    '"gitLink" : "' + "${GIT_URL}" + '",' +
+//                            '"gitCommitter" : "' + "${GIT_COMMITTER_NAME}" + '",' +
+//                            '"gitAuthor" : "' + "${GIT_AUTHOR_NAME}" + '",' +
+                                    '"jenkinsJob": "' + "${BUILD_URL}" +'",' +
+                                    '"testing-status": "' + "FAILED" +'"' +
+                                    '} }'
+              }
+            }
+
+            script {
+              //use SUCCESS, FAILURE or ABORTED
+              currentBuild.result = 'FAILURE'
+              throw new Exception("Throw to stop pipeline")
+              // do not use the following, as it does not trigger post steps (i.e. the failure step)
+              // error "your reason here"
+            }
+
           }
         }
       }
@@ -189,6 +263,84 @@ pipeline {
         }
       }
     }
-    //todo: delete scenarios
+    stage('Log Tag Attributes') {
+      steps {
+//        print "NPE: ${npe.getApplicationCompositionReportUrl()}"
+//        print "NPE.affected = ${npe.affectedComponentCount}"
+//        print "NPE.critical = ${npe.criticalComponentCount}"
+//        print "NPE.severe = ${npe.severeComponentCount}"
+//        print "NPE.moderate = ${npe.moderateComponentCount}"
+//        print "NPE.grandfathered = ${npe.grandfatheredPolicyViolationCount}"
+//
+//        tagAttributesJson: '{' +
+//                '"user" : "' + "${USER}" + '",' +
+//                '"origPomVersion" : "' + "${POM_VERSION}" + '",' +
+//                '"releasePomVersion" : "' + "${POM_RELEASE_VERSION}" + '",' +
+//                '"branch" : "' + "${BRANCH_NAME}" + '",' +
+////                            '"changeId" : "' + "${CHANGE_ID}" + '",' +
+////                            '"changeLink" : "' + "${CHANGE_URL}" + '",' +
+////                            '"changeTitle" : "' + "${CHANGE_TITLE}" + '",' +
+////                            '"changeAuthor" : "' + "${CHANGE_AUTHOR}" + '",' +
+//                '"gitCommit" : "' + "${GIT_COMMIT}" + '",' +
+//                '"gitBranch" : "' + "${GIT_BRANCH}" + '",' +
+//                '"gitLink" : "' + "${GIT_URL}" + '",' +
+////                            '"gitCommitter" : "' + "${GIT_COMMITTER_NAME}" + '",' +
+////                            '"gitAuthor" : "' + "${GIT_AUTHOR_NAME}" + '",' +
+//                '"jenkinsJob": "' + "${BUILD_URL}" +'"' +
+//                '}'
+
+
+
+        httpRequest acceptType: 'APPLICATION_JSON',
+                    authentication: 'nexus-iq-demo',
+                    consoleLogResponseBody: true,
+                    contentType: 'APPLICATION_JSON',
+                    httpMode: 'PUT',
+                    responseHandle: 'NONE',
+                    url: "http://localhost:8083/nexus/service/rest/v1/tags/${NXRM_TAG_NAME}",
+                    validResponseCodes: '200',
+                    requestBody: '{ "attributes": {' +
+                            '"user" : "' + "${USER}" + '",' +
+                            '"origPomVersion" : "' + "${POM_VERSION}" + '",' +
+                            '"releasePomVersion" : "' + "${POM_RELEASE_VERSION}" + '",' +
+                            '"branch" : "' + "${BRANCH_NAME}" + '",' +
+//                            '"changeId" : "' + "${CHANGE_ID}" + '",' +
+//                            '"changeLink" : "' + "${CHANGE_URL}" + '",' +
+//                            '"changeTitle" : "' + "${CHANGE_TITLE}" + '",' +
+//                            '"changeAuthor" : "' + "${CHANGE_AUTHOR}" + '",' +
+                            '"gitCommit" : "' + "${GIT_COMMIT}" + '",' +
+                            '"gitBranch" : "' + "${GIT_BRANCH}" + '",' +
+                            '"gitLink" : "' + "${GIT_URL}" + '",' +
+//                            '"gitCommitter" : "' + "${GIT_COMMITTER_NAME}" + '",' +
+//                            '"gitAuthor" : "' + "${GIT_AUTHOR_NAME}" + '",' +
+                            '"jenkinsJob": "' + "${BUILD_URL}" +'",' +
+                            '"iqReportURL": "' + "${npe.applicationCompositionReportUrl}" +'",' +
+                            '"iqReportAffectedComponents": "' + "${npe.affectedComponentCount}" +'",' +
+                            '"iqReportCriticalComponents": "' + "${npe.criticalComponentCount}" +'",' +
+                            '"iqReportSevereComponents": "' + "${npe.severeComponentCount}" +'",' +
+                            '"iqReportModerateComponents": "' + "${npe.moderateComponentCount}" +'",' +
+                            '"iqReportGrandfatheredComponents": "' + "${npe.grandfatheredPolicyViolationCount}" +'"' +
+                            '} }'
+      }
+    }
+    stage('Cleanup Tag') {
+      when {
+        //branch 'develop'
+        equals expected: true, actual: params.SHOULD_CLEANUP
+      }
+      steps {
+        // TODO: the jenkins and maven plugins only deletes all the components associated with the tag
+        //curl -X POST "http://localhost:8083/nexus/service/rest/v1/staging/delete?repository=maven-releases-qa&maven.artifactId=sonatype-iq-app-licenses&tag=RBCDemoJenkinsfile-56" -H "accept: application/json"
+
+        httpRequest acceptType: 'APPLICATION_JSON',
+                    authentication: 'nexus-iq-demo',
+                    consoleLogResponseBody: true,
+                    contentType: 'APPLICATION_JSON',
+                    httpMode: 'PUT',
+                    responseHandle: 'NONE',
+                    url: "http://localhost:8083/nexus/service/rest/v1/staging/delete?repository=maven-releases-qa&maven.artifactId=sonatype-iq-app-licenses&tag=${NXRM_TAG_NAME}",
+                    validResponseCodes: '200'
+      }
+    }
   }
 }
