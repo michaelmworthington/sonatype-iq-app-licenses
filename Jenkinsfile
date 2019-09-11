@@ -17,6 +17,7 @@ pipeline {
 
   options {
     timestamps()
+    buildDiscarder(logRotator(numToKeepStr: '4'))
   }
 
   parameters {
