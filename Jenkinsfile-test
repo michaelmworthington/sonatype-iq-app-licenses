@@ -27,6 +27,8 @@ pipeline {
   stages {
     stage('Prep') {
       steps {
+        input 'Move Image into QA?'
+
         configFileProvider([configFile(fileId: 'c53477b4-afad-4fe1-89e7-b1c28e899e4e', variable: 'MAVEN_SETTINGS')]) {
 
           script {

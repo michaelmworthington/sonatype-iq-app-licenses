@@ -63,6 +63,8 @@
       <version>3.8.20190821-172053.8894a6d</version>
       <scope>test</scope>
     </dependency>
+    <!--    Package Discovery - command+n = org.mike:sonatype-iq-app-client -->
+
 
   </dependencies>
 

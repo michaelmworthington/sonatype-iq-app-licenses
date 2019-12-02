@@ -215,7 +215,9 @@ pipeline {
         sh 'docker push local-mike:19447/michaelmworthington/sonatype-iq-app-licenses:${POM_RELEASE_VERSION}-${BUILD_NUMBER}'
 
         associateTag nexusInstanceId: 'nexus3-demo',
-                     search: [[key: 'repository', value: 'docker-hosted-beta'], [key: 'name', value: "michaelmworthington/sonatype-iq-app-licenses"], [key: 'version', value: "${POM_RELEASE_VERSION}-${BUILD_NUMBER}"]],
+                     search: [[key: 'repository', value: 'docker-hosted-beta'],
+                              [key: 'name', value: "michaelmworthington/sonatype-iq-app-licenses"],
+                              [key: 'version', value: "${POM_RELEASE_VERSION}-${BUILD_NUMBER}"]],
                      tagName: "${NXRM_TAG_NAME}"
 
       }
