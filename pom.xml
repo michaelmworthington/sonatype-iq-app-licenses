@@ -32,6 +32,25 @@
     </snapshotRepository>
   </distributionManagement>
 
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>fail</checksumPolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+        <updatePolicy>never</updatePolicy>
+        <checksumPolicy>fail</checksumPolicy>
+      </snapshots>
+      <name>Restlet</name>
+      <id>restlet-releases</id>
+      <url>https://maven.restlet.talend.com</url>
+      <layout>default</layout>
+    </repository>
+  </repositories>
+
   <profiles>
     <profile>
       <id>staging-release</id>
